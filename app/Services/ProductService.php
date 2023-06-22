@@ -15,12 +15,12 @@ class ProductService
 
     public function registerProducts()
     {
-        $products = $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/artikelen.csv');
+        $products = $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/artikelen.csv');
 
         // TODO check if a product is in the database that should not be in the database
         collect($products)->chunk(1000)->each(function (object $chunk) {
             $chunk->each(function (array $product) {
-                if ($existingProduct = $this->productExists($product["Artikelnummer"])) {
+                if ($existingProduct = $this->productExists($product['Artikelnummer'])) {
                     $this->updateProduct($existingProduct, $product);
                 } else {
                     $this->registerNewProduct($product);

@@ -16,7 +16,7 @@ class DebtorProductService
 
     public function registerDebtorProducts()
     {
-        $debtorProducts = $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale']);
+        $debtorProducts = $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale']);
 
         $this->deleteUnusedEntries($debtorProducts);
 
@@ -39,15 +39,13 @@ class DebtorProductService
 
         $debtorProducts = collect($debtorProducts)->groupBy('debtor_number', 'product_number')->toArray();
 
-        Log::emergency("isset", [$exisingEntries]);
-        Log::emergency("entry", [$debtorProducts]);
-
+        Log::emergency('isset', [$exisingEntries]);
+        Log::emergency('entry', [$debtorProducts]);
 
         collect($exisingEntries)->each(function ($groupEntry, $debtorKey) use ($debtorProducts) {
             collect($groupEntry)->each(function ($entry, $productKey) use ($debtorProducts, $debtorKey) {
-
                 if (isset($debtorProducts[$debtorKey])) {
-                    Log::emergency("isset", [$debtorProducts[$debtorKey]]);
+                    Log::emergency('isset', [$debtorProducts[$debtorKey]]);
                 }
             });
         });
@@ -65,6 +63,6 @@ class DebtorProductService
 
     private function debtorProductExists(array $product): ?DebtorProduct
     {
-        return DebtorProduct::where('debtor_number', $product["debtor_number"])->where('product_number', $product["product_number"])->first();
+        return DebtorProduct::where('debtor_number', $product['debtor_number'])->where('product_number', $product['product_number'])->first();
     }
 }

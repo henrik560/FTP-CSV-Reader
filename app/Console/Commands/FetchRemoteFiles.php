@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Jobs\FetchRemoteFilesJob as FetchRemoteFilesJob;
-use App\Services\DebtorService;
 use Illuminate\Console\Command;
 
 class FetchRemoteFiles extends Command

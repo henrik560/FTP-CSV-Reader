@@ -16,15 +16,14 @@ class FileTransferService
 
     private function downloadRemoteFiles(): void
     {
-        collect(explode(',', env('SFTP_REMOTE_FILES', "")))->each(function ($file) {
+        collect(explode(',', env('SFTP_REMOTE_FILES', '')))->each(function ($file) {
             $this->downloadFile($file);
         });
     }
 
-
     private function downloadFile(string $fileName): void
     {
-        if (!Storage::disk('sftp')->exists($fileName)) {
+        if (! Storage::disk('sftp')->exists($fileName)) {
             return;
         }
 

@@ -15,11 +15,11 @@ class DebtorService
 
     public function registerDebtors()
     {
-        $debtors = $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/debiteuren.csv');
+        $debtors = $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/debiteuren.csv');
 
         // TODO check if a debtor is in the database that should not be there
         collect($debtors)->each(function ($debtor) {
-            if ($existingDebtor = $this->debtorExists($debtor["Debiteurnummer"])) {
+            if ($existingDebtor = $this->debtorExists($debtor['Debiteurnummer'])) {
                 $this->updateDebtor($existingDebtor, $debtor);
             } else {
                 $this->registerNewDebtor($debtor);
@@ -36,8 +36,8 @@ class DebtorService
     {
         $debtor = Debtor::create(
             array_merge([
-                "debtor_number" => $debtor["Debiteurnummer"],
-                $this->mapDebtorData($debtor)
+                'debtor_number' => $debtor['Debiteurnummer'],
+                $this->mapDebtorData($debtor),
             ])
         );
     }
