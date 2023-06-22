@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Debtor;
-use App\Models\DebtorProduct;
 
 class DebtorService
 {
@@ -16,38 +15,56 @@ class DebtorService
 
     public function registerDebtors()
     {
-        $debtors = $this->csvService->retrieveCSVData('/artikelen-csv/debiteuren.csv');
+        $debtors = $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/debiteuren.csv');
 
+        // TODO check if a debtor is in the database that should not be there
         collect($debtors)->each(function ($debtor) {
-            $debtor = Debtor::create([
-                'debtor_number' => $debtor['Debiteurnummer'],
-                'name_1' => $debtor['Naam1'],
-                'name_2' => $debtor['Naam2'],
-                'search_name' => $debtor['Zoeknaam'],
-                'address' => $debtor['Adres'],
-                'postalcode' => $debtor['Postcode'],
-                'city' => $debtor['Plaats'],
-                'country' => $debtor['Land'],
-                'contact' => $debtor['Contact'],
-                'phonenumber' => $debtor['Telefoon'],
-                'mobile' => $debtor['Mobiel'],
-                'email' => $debtor['Email'],
-                'email_cc' => $debtor['Email cc'],
-                'email_invoice' => $debtor['Email factuur'],
-                'email_invoice_cc' => $debtor['Email factuur cc'],
-                'tax_number' => $debtor['BTW nummer'],
-            ]);
+            if ($existingDebtor = $this->debtorExists($debtor["Debiteurnummer"])) {
+                $this->updateDebtor($existingDebtor, $debtor);
+            } else {
+                $this->registerNewDebtor($debtor);
+            }
         });
     }
 
-    public function registerDebtorProducts()
+    private function updateDebtor(Debtor $existingDebtor, array $debtor): void
     {
-        $debtorProducts = $this->csvService->retrieveCSVData('/artikelen-csv/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale']);
+        $existingDebtor->update($this->mapDebtorData($debtor));
+    }
 
-        collect($debtorProducts)->chunk(1000)->each(function ($chunk) {
-            $chunk->each(function ($product) {
-                $product = DebtorProduct::firstOrCreate($product);
-            });
-        });
+    private function registerNewDebtor(array $debtor): void
+    {
+        $debtor = Debtor::create(
+            array_merge([
+                "debtor_number" => $debtor["Debiteurnummer"],
+                $this->mapDebtorData($debtor)
+            ])
+        );
+    }
+
+    private function debtorExists(string $debtorNumber): ?Debtor
+    {
+        return Debtor::where('debtor_number', $debtorNumber)->first();
+    }
+
+    private function mapDebtorData(array $debtor): array
+    {
+        return [
+            'name_1' => $debtor['Naam1'],
+            'name_2' => $debtor['Naam2'],
+            'search_name' => $debtor['Zoeknaam'],
+            'address' => $debtor['Adres'],
+            'postalcode' => $debtor['Postcode'],
+            'city' => $debtor['Plaats'],
+            'country' => $debtor['Land'],
+            'contact' => $debtor['Contact'],
+            'phonenumber' => $debtor['Telefoon'],
+            'mobile' => $debtor['Mobiel'],
+            'email' => $debtor['Email'],
+            'email_cc' => $debtor['Email cc'],
+            'email_invoice' => $debtor['Email factuur'],
+            'email_invoice_cc' => $debtor['Email factuur cc'],
+            'tax_number' => $debtor['BTW nummer'],
+        ];
     }
 }

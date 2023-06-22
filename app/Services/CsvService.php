@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class CsvService
 {
@@ -19,12 +20,14 @@ class CsvService
 
     public function aggregateCSVData(string $csvPath, array $columnNames = null): array
     {
-        abort_if(! file_exists(base_path($csvPath)), 404);
+        abort_if(!file_exists(base_path($csvPath)), 404);
 
         $file = fopen(base_path($csvPath), 'r');
 
         if (is_null($columnNames)) {
-            $columnNames = fgetcsv($file, 0, ';');
+            $columnNames = collect(fgetcsv($file, 0, ';'))->map(function ($column) {
+                return str_replace(",", '', $column);
+            })->toArray();
         }
 
         $aggregatedData = new Collection();
