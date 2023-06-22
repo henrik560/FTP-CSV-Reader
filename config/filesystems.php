@@ -32,14 +32,14 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app') . '/csv',
+            'root' => storage_path('app').'/csv',
             'throw' => false,
         ],
 
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL') . '/storage',
+            'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
         ],
@@ -62,7 +62,7 @@ return [
             'username' => env('SFTP_SERVER_USER'),
             'password' => env('SFTP_SERVER_PASSWORD'),
             'port' => (int) env('SFTP_SERVER_POST', 22),
-            'root' => env('SFTP_REMOTE_PATH')
+            'root' => env('SFTP_REMOTE_PATH'),
         ],
     ],
 

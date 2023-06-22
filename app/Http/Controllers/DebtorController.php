@@ -6,7 +6,6 @@ use App\Models\Debtor;
 use App\Models\DebtorProduct;
 use App\Services\PaginationService;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class DebtorController extends Controller
 {
@@ -35,7 +34,7 @@ class DebtorController extends Controller
         return Debtor::where('debtor_number', '=', $debtorId)->firstOrFail();
     }
 
-    public function products(PaginationService $paginationService,  Request $request, string $debtorNumber)
+    public function products(PaginationService $paginationService, Request $request, string $debtorNumber)
     {
         $pageSize = $paginationService->validatePageSize($request->input('pageSize'));
 
@@ -52,6 +51,6 @@ class DebtorController extends Controller
                 ->orWhere('oms_3', 'LIKE', "%{$q}%");
         }
 
-        return ["debtor" => $debtor, "products" => $products->paginate($pageSize)];
+        return ['debtor' => $debtor, 'products' => $products->paginate($pageSize)];
     }
 }

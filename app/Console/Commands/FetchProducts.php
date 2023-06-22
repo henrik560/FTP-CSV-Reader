@@ -4,8 +4,6 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Cache\Store;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class FetchProducts extends Command
@@ -27,9 +25,9 @@ class FetchProducts extends Command
 
     private function downloadFile(string $fileName): bool
     {
-        if (!Storage::disk('sftp')->exists($fileName)) {
+        if (! Storage::disk('sftp')->exists($fileName)) {
             return false;
-        };
+        }
 
         Storage::disk('local')->put(
             "$fileName.csv",
@@ -46,9 +44,9 @@ class FetchProducts extends Command
         $currentDateTime = Carbon::now()->format('Y-m-d_H-i-s');
         $newDirectory = Storage::createDirectory($currentDateTime);
 
-        if (!Storage::directoryExists($currentDateTime)) {
+        if (! Storage::directoryExists($currentDateTime)) {
             return;
-        };
+        }
 
         collect($files)->each(function ($file) use ($currentDateTime) {
             Storage::move($file, "$currentDateTime/$file");

@@ -8,7 +8,7 @@ class CsvService
 {
     public function retrieveCSVData(string $csvPath, array $columns = null)
     {
-        list($data, $columns) = $this->aggregateCSVData($csvPath, $columns);
+        [$data, $columns] = $this->aggregateCSVData($csvPath, $columns);
 
         $csvData = collect($data)->map(function ($dataRow) use ($columns) {
             return array_combine($columns, $dataRow);
@@ -19,7 +19,7 @@ class CsvService
 
     public function aggregateCSVData(string $csvPath, array $columnNames = null): array
     {
-        abort_if(!file_exists(base_path($csvPath)), 404);
+        abort_if(! file_exists(base_path($csvPath)), 404);
 
         $file = fopen(base_path($csvPath), 'r');
 
@@ -30,10 +30,11 @@ class CsvService
         $aggregatedData = new Collection();
 
         while (($row = fgetcsv($file, 0)) !== false) {
-            $row = explode(";", implode("", str_replace('"', '', $row)));
+            $row = explode(';', implode('', str_replace('"', '', $row)));
             $encoded = mb_convert_encoding(implode(';', $row), 'UTF-8', 'ISO-8859-1');
             $convertedRow = collect(explode(';', $encoded))->map(function ($item) {
                 $convertedItem = trim($item);
+
                 return $convertedItem;
             })->toArray();
 
@@ -46,7 +47,7 @@ class CsvService
 
         return [
             $aggregatedData->toArray(),
-            $columnNames
+            $columnNames,
         ];
     }
 }

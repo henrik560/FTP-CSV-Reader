@@ -10,9 +10,9 @@ class DebtorProduct extends Model
     use HasFactory;
 
     protected $fillable = [
-        "debtor_number",
-        "product_number",
-        "sale",
+        'debtor_number',
+        'product_number',
+        'sale',
     ];
 
     public function product()
