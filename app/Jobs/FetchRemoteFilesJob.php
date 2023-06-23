@@ -34,7 +34,7 @@ class FetchRemoteFilesJob implements ShouldQueue
     private function processData(DebtorService $debtorService, DebtorProductService $debtorProductService, ProductService $productService): void
     {
         // $debtorService->registerDebtors();
-        $debtorProductService->registerDebtorProducts();
+        $debtorProductService->processDebtorProducts();
         // $productService->registerProducts();
     }
 }

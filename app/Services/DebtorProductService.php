@@ -14,12 +14,20 @@ class DebtorProductService
         $this->csvService = $csvService;
     }
 
-    public function registerDebtorProducts()
+    public function processDebtorProducts(): void
     {
-        $debtorProducts = $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale']);
-
+        $debtorProducts = $this->retrieveDebtorProducts();
         $this->deleteUnusedEntries($debtorProducts);
+        $this->createNewEntries($debtorProducts);
+    }
 
+    private function retrieveDebtorProducts(): array
+    {
+        return $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale']);
+    }
+
+    private function createNewEntries(array $debtorProducts): void
+    {
         LazyCollection::make(function () use ($debtorProducts) {
             yield from collect($debtorProducts)->chunk(1000);
         })->each(function ($chunk) {
@@ -49,8 +57,8 @@ class DebtorProductService
             [$debtorKey, $groupEntry, $mappedProductNumbers] = $data;
 
             collect($groupEntry)->each(function ($entry, $productKey) use ($mappedProductNumbers) {
-                if (is_null($mappedProductNumbers) || !in_array($productKey, $mappedProductNumbers)) {
-                    $entryId = collect($entry)->first()["id"];
+                if (is_null($mappedProductNumbers) || ! in_array($productKey, $mappedProductNumbers)) {
+                    $entryId = collect($entry)->first()['id'];
                     DebtorProduct::destroy($entryId);
                 }
             });

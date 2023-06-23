@@ -13,10 +13,24 @@ class DebtorService
         $this->csvService = $csvService;
     }
 
-    public function registerDebtors()
+    public function processDebtors(): void
     {
-        $debtors = $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/debiteuren.csv');
+        $debtors = $this->retrieveDebtors();
 
+        $this->deleteUnusedEntries($debtors);
+    }
+
+    private function deleteUnusedEntries(array $debtors): void
+    {
+    }
+
+    private function retrieveDebtors(): array
+    {
+        return $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/debiteuren.csv');
+    }
+
+    private function registerDebtors(array $debtors)
+    {
         // TODO check if a debtor is in the database that should not be there
         collect($debtors)->each(function ($debtor) {
             if ($existingDebtor = $this->debtorExists($debtor['Debiteurnummer'])) {
