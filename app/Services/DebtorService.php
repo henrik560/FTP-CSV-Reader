@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Debtor;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\LazyCollection;
 
 class DebtorService
 {
@@ -18,20 +20,30 @@ class DebtorService
         $debtors = $this->retrieveDebtors();
 
         $this->deleteUnusedEntries($debtors);
+
+        $this->createNewEntries($debtors);
     }
 
     private function deleteUnusedEntries(array $debtors): void
     {
+        $existingEntries = Debtor::lazy()->toArray();
+
+        $mappedDebtorNumbers = collect($debtors)->pluck('Debiteurnummer')->toArray();
+
+        collect($existingEntries)->each(function ($entry) use ($mappedDebtorNumbers) {
+            if (!in_array($entry["debtor_number"], $mappedDebtorNumbers)) {
+                Debtor::destroy($entry["id"]);
+            }
+        });
     }
 
     private function retrieveDebtors(): array
     {
-        return $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/debiteuren.csv');
+        return $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/debiteuren.csv');
     }
 
-    private function registerDebtors(array $debtors)
+    private function createNewEntries(array $debtors): void
     {
-        // TODO check if a debtor is in the database that should not be there
         collect($debtors)->each(function ($debtor) {
             if ($existingDebtor = $this->debtorExists($debtor['Debiteurnummer'])) {
                 $this->updateDebtor($existingDebtor, $debtor);
@@ -49,10 +61,10 @@ class DebtorService
     private function registerNewDebtor(array $debtor): void
     {
         $debtor = Debtor::create(
-            array_merge([
-                'debtor_number' => $debtor['Debiteurnummer'],
+            array_merge(
+                ['debtor_number' => $debtor['Debiteurnummer']],
                 $this->mapDebtorData($debtor),
-            ])
+            )
         );
     }
 

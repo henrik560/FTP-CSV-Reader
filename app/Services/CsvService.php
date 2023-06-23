@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 
 class CsvService
 {
@@ -10,8 +11,10 @@ class CsvService
     {
         [$data, $columns] = $this->aggregateCSVData($csvPath, $columns);
 
-        $csvData = collect($data)->map(function ($dataRow) use ($columns) {
-            return array_combine($columns, $dataRow);
+        $csvData = LazyCollection::make(function () use ($data, $columns) {
+            yield from collect($data)->map(function ($dataRow) use ($columns) {
+                return array_combine($columns, $dataRow);
+            });
         })->toArray();
 
         return $csvData;
@@ -19,7 +22,7 @@ class CsvService
 
     public function aggregateCSVData(string $csvPath, array $columnNames = null): array
     {
-        abort_if(! file_exists(base_path($csvPath)), 404);
+        abort_if(!file_exists(base_path($csvPath)), 404);
 
         $file = fopen(base_path($csvPath), 'r');
 

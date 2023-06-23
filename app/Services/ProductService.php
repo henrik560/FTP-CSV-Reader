@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 
 class ProductService
 {
@@ -13,11 +14,35 @@ class ProductService
         $this->csvService = $csvService;
     }
 
-    public function registerProducts()
+    public function processProducts(): void
     {
-        $products = $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/artikelen.csv');
+        $products = $this->retrieveProducts();
 
-        // TODO check if a product is in the database that should not be in the database
+        $this->deleteUnusedEntries($products);
+
+        // $this->createNewEntries($products);
+    }
+
+    private function retrieveProducts(): array
+    {
+        return $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/artikelen.csv');
+    }
+
+    private function deleteUnusedEntries(array $products): void
+    {
+        $existingEntries = Product::lazy()->toArray();
+
+        $mappedProductNumbers = collect($products)->pluck('Artikelnummer')->toArray();
+
+        collect($existingEntries)->each(function ($entry) use ($mappedProductNumbers) {
+            if (!in_array($entry["product_number"], $mappedProductNumbers)) {
+                Product::destroy($entry["id"]);
+            }
+        });
+    }
+
+    public function createNewEntries(array $products): void
+    {
         collect($products)->chunk(1000)->each(function (object $chunk) {
             $chunk->each(function (array $product) {
                 if ($existingProduct = $this->productExists($product['Artikelnummer'])) {

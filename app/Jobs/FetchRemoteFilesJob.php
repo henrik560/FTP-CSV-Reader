@@ -24,7 +24,7 @@ class FetchRemoteFilesJob implements ShouldQueue
      */
     public function handle(FileTransferService $fileTransferService, DebtorProductService $debtorProductService, DebtorService $debtorService, ProductService $productService)
     {
-        // $fileTransferService->transferFiles();
+        $fileTransferService->transferFiles();
 
         $this->processData($debtorService, $debtorProductService, $productService);
 
@@ -33,8 +33,10 @@ class FetchRemoteFilesJob implements ShouldQueue
 
     private function processData(DebtorService $debtorService, DebtorProductService $debtorProductService, ProductService $productService): void
     {
-        // $debtorService->registerDebtors();
+        // $debtorService->processDebtors();
+
         $debtorProductService->processDebtorProducts();
-        // $productService->registerProducts();
+
+        // $productService->processProducts();
     }
 }
