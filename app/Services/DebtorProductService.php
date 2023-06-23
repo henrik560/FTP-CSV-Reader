@@ -37,15 +37,19 @@ class DebtorProductService
     {
         $existingEntries = DebtorProduct::lazy()->groupBy(['debtor_number', 'product_number'])->toArray();
 
-        $debtorProductsGrouped = collect($debtorProducts)->groupBy('debtor_number', 'product_number')->toArray();
+        $debtorProductsGrouped = LazyCollection::make(function () use ($debtorProducts) {
+            yield from collect($debtorProducts)->groupBy(['debtor_number', 'product_number']);
+        })->toArray();
 
-        LazyCollection::make(function () use ($existingEntries) {
-            yield from collect($existingEntries);
-        })->each(function ($groupEntry, $debtorKey) use ($debtorProductsGrouped) {
-            collect($groupEntry)->each(function ($entry, $productKey) use ($debtorProductsGrouped, $debtorKey) {
-                $mappedProductNumbers = collect($debtorProductsGrouped[$debtorKey])->pluck('product_number')->toArray();
+        LazyCollection::make(function () use ($existingEntries, $debtorProductsGrouped) {
+            foreach ($existingEntries as $debtorKey => $groupEntry) {
+                yield [$debtorKey, $groupEntry, $debtorProductsGrouped[$debtorKey] ?? null];
+            }
+        })->each(function ($data) {
+            [$debtorKey, $groupEntry, $mappedProductNumbers] = $data;
 
-                if (!isset($debtorProductsGrouped[$debtorKey]) || !in_array($productKey, $mappedProductNumbers)) {
+            collect($groupEntry)->each(function ($entry, $productKey) use ($mappedProductNumbers) {
+                if (is_null($mappedProductNumbers) || !in_array($productKey, $mappedProductNumbers)) {
                     $entryId = collect($entry)->first()["id"];
                     DebtorProduct::destroy($entryId);
                 }
