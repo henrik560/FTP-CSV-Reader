@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\DebtorProduct;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\LazyCollection;
 
 class DebtorProductService
 {
@@ -16,36 +16,38 @@ class DebtorProductService
 
     public function registerDebtorProducts()
     {
-        $debtorProducts = $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale']);
+        $debtorProducts = $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale']);
 
         $this->deleteUnusedEntries($debtorProducts);
 
-        // TODO laravel lazy collection https://laravel.com/docs/10.x/collections#lazy-collections
-
-        // collect($debtorProducts)->chunk(1000)->each(function ($chunk) {
-        //     $chunk->each(function ($product) {
-        //         if ($existingDebtorProduct = $this->debtorProductExists($product)) {
-        //             $this->updateDebtorProduct($existingDebtorProduct, $product);
-        //         } else {
-        //             $this->createDebtorProduct($product);
-        //         }
-        //     });
-        // });
+        LazyCollection::make(function () use ($debtorProducts) {
+            yield from collect($debtorProducts)->chunk(1000);
+        })->each(function ($chunk) {
+            $chunk->each(function ($product) {
+                if ($existingDebtorProduct = $this->debtorProductExists($product)) {
+                    $this->updateDebtorProduct($existingDebtorProduct, $product);
+                } else {
+                    $this->createDebtorProduct($product);
+                }
+            });
+        });
     }
 
     private function deleteUnusedEntries(array $debtorProducts): void
     {
-        $exisingEntries = DebtorProduct::lazy()->groupBy(['debtor_number', 'product_number'])->toArray();
+        $existingEntries = DebtorProduct::lazy()->groupBy(['debtor_number', 'product_number'])->toArray();
 
-        $debtorProducts = collect($debtorProducts)->groupBy('debtor_number', 'product_number')->toArray();
+        $debtorProductsGrouped = collect($debtorProducts)->groupBy('debtor_number', 'product_number')->toArray();
 
-        Log::emergency('isset', [$exisingEntries]);
-        Log::emergency('entry', [$debtorProducts]);
+        LazyCollection::make(function () use ($existingEntries) {
+            yield from collect($existingEntries);
+        })->each(function ($groupEntry, $debtorKey) use ($debtorProductsGrouped) {
+            collect($groupEntry)->each(function ($entry, $productKey) use ($debtorProductsGrouped, $debtorKey) {
+                $mappedProductNumbers = collect($debtorProductsGrouped[$debtorKey])->pluck('product_number')->toArray();
 
-        collect($exisingEntries)->each(function ($groupEntry, $debtorKey) use ($debtorProducts) {
-            collect($groupEntry)->each(function ($entry, $productKey) use ($debtorProducts, $debtorKey) {
-                if (isset($debtorProducts[$debtorKey])) {
-                    Log::emergency('isset', [$debtorProducts[$debtorKey]]);
+                if (!isset($debtorProductsGrouped[$debtorKey]) || !in_array($productKey, $mappedProductNumbers)) {
+                    $entryId = collect($entry)->first()["id"];
+                    DebtorProduct::destroy($entryId);
                 }
             });
         });
