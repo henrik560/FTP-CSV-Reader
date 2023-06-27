@@ -24,8 +24,9 @@ class FileTransferService
 
     private function downloadFile(string $fileName): void
     {
-        if (!Storage::disk('sftp')->exists($fileName)) {
-            Log::emergency("file does not exists in sftp disk", ["file" => $fileName]);
+        if (! Storage::disk('sftp')->exists($fileName)) {
+            Log::emergency('file does not exists in sftp disk', ['file' => $fileName]);
+
             return;
         }
 

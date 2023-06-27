@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\DebtorProduct;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -16,8 +15,8 @@ class createDebtorProductsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $debtorProducts;
+
     /**
-     *
      * Create a new job instance.
      *
      * @return void
@@ -36,7 +35,7 @@ class createDebtorProductsJob implements ShouldQueue
     {
         LazyCollection::make($this->debtorProducts)->each(function ($product) {
             DebtorProduct::updateOrCreate(
-                ['debtor_number' => $product["debtor_number"], "product_number" => $product["product_number"]],
+                ['debtor_number' => $product['debtor_number'], 'product_number' => $product['product_number']],
                 $product
             );
         });

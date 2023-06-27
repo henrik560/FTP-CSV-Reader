@@ -27,12 +27,12 @@ class ProductService
 
     private function retrieveProducts(): array
     {
-        return $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/artikelen.csv');
+        return $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/artikelen.csv');
     }
 
     public function createNewEntries(array $products): void
     {
-        LazyCollection::make($products)->chunk(env("CHUNK_SIZE", 1000))->each(function ($chunk) {
+        LazyCollection::make($products)->chunk(env('CHUNK_SIZE', 1000))->each(function ($chunk) {
             Queue::push(new createProductsJob($chunk));
         });
     }
@@ -40,7 +40,7 @@ class ProductService
     private function deleteUnusedEntries(array $products): void
     {
         Product::lazy()->each(function ($entry) use ($products) {
-            if (!in_array($entry["product_number"], array_column($products, 'Artikelnummer'))) {
+            if (! in_array($entry['product_number'], array_column($products, 'Artikelnummer'))) {
                 $entry->delete();
             }
         });

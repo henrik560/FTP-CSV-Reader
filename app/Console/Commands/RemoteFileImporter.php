@@ -7,7 +7,6 @@ use App\Services\DebtorService;
 use App\Services\FileTransferService;
 use App\Services\ProductService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class RemoteFileImporter extends Command
 {

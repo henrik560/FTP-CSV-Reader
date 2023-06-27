@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\Product;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -16,6 +15,7 @@ class createProductsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $products;
+
     /**
      * Create a new job instance.
      *
@@ -35,7 +35,7 @@ class createProductsJob implements ShouldQueue
     {
         LazyCollection::make($this->products)->each(function ($product) {
             Product::updateOrCreate(
-                ['product_number' => $product["Artikelnummer"]],
+                ['product_number' => $product['Artikelnummer']],
                 $this->mapProductData($product)
             );
         });

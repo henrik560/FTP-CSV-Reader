@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\Debtor;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -36,7 +35,7 @@ class createDebtorsJob implements ShouldQueue
     {
         LazyCollection::make($this->debtors)->each(function ($debtor) {
             Debtor::updateOrCreate(
-                ['debtor_number' => $debtor["Debiteurnummer"]],
+                ['debtor_number' => $debtor['Debiteurnummer']],
                 $this->mapDebtorData($debtor)
             );
         });

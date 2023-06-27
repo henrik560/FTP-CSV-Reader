@@ -26,7 +26,7 @@ class DebtorProductService
 
     private function retrieveDebtorProducts(): array
     {
-        return $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale'], ["debtor_number"]);
+        return $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale'], ['debtor_number']);
     }
 
     private function createNewEntries(array $debtorProducts): void
@@ -41,7 +41,7 @@ class DebtorProductService
         DebtorProduct::lazy()->each(function ($entry) use ($debtorProducts) {
             $debtorProduct = $entry->toArray();
 
-            if (!isset($debtorProducts[$debtorProduct["debtor_number"]]) || !in_array($debtorProduct["product_number"], array_column($debtorProducts[$debtorProduct["debtor_number"]], "product_number"))) {
+            if (! isset($debtorProducts[$debtorProduct['debtor_number']]) || ! in_array($debtorProduct['product_number'], array_column($debtorProducts[$debtorProduct['debtor_number']], 'product_number'))) {
                 $entry->delete();
             }
         });
