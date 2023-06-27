@@ -1,29 +1,39 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Console\Commands;
 
 use App\Services\DebtorProductService;
 use App\Services\DebtorService;
 use App\Services\FileTransferService;
 use App\Services\ProductService;
-use Illuminate\Bus\Queueable;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
-class FetchRemoteFilesJob implements ShouldQueue
+class RemoteFileImporter extends Command
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'remoteFileImporter:start';
 
     /**
-     * Execute the job.
+     * The console command description.
      *
-     * @return void
+     * @var string
+     */
+    protected $description = 'Fetch files from an sftp server and upload the data to the database';
+
+    /**
+     * Execute the console command.
+     *
+     * @return int
      */
     public function handle(FileTransferService $fileTransferService, DebtorProductService $debtorProductService, DebtorService $debtorService, ProductService $productService)
     {
+        ini_set('memory_limit', '1G');
+
         $fileTransferService->transferFiles();
 
         $this->processData($debtorService, $debtorProductService, $productService);
@@ -33,10 +43,10 @@ class FetchRemoteFilesJob implements ShouldQueue
 
     private function processData(DebtorService $debtorService, DebtorProductService $debtorProductService, ProductService $productService): void
     {
-        // $debtorService->processDebtors();
+        $debtorService->processDebtors();
 
         $debtorProductService->processDebtorProducts();
 
-        // $productService->processProducts();
+        $productService->processProducts();
     }
 }

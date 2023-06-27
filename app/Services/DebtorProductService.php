@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Jobs\createDebtorProductJob;
 use App\Models\DebtorProduct;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\LazyCollection;
+use Illuminate\Support\Facades\Queue;
 
 class DebtorProductService
 {
@@ -26,45 +26,23 @@ class DebtorProductService
 
     private function retrieveDebtorProducts(): array
     {
-        return $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale']);
+        return $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale'], ["debtor_number"]);
     }
 
     private function createNewEntries(array $debtorProducts): void
     {
-        ini_set('memory_limit', '2G');
-
-        LazyCollection::make(function () use ($debtorProducts) {
-            yield from collect($debtorProducts)->chunk(10);
-        })->each(function ($groupedProducts) {
-            $groupedProducts->each(function ($product) {
-                DebtorProduct::updateOrCreate(
-                    ['debtor_number' => $product["debtor_number"], "product_number" => $product["product_number"]],
-                    $product
-                );
-            });
+        collect($debtorProducts)->each(function ($debtorProduct) {
+            Queue::push(new createDebtorProductJob($debtorProduct));
         });
     }
 
     private function deleteUnusedEntries(array $debtorProducts): void
     {
-        $existingEntries = DebtorProduct::lazy()->groupBy(['debtor_number', 'product_number'])->toArray();
+        DebtorProduct::lazy()->each(function ($entry) use ($debtorProducts) {
+            $debtorProduct = $entry->toArray();
 
-        $debtorProductsGrouped = LazyCollection::make(function () use ($debtorProducts) {
-            yield from collect($debtorProducts)->groupBy(['debtor_number', 'product_number']);
-        })->toArray();
-
-        LazyCollection::make(function () use ($existingEntries, $debtorProductsGrouped) {
-            foreach ($existingEntries as $debtorKey => $groupEntry) {
-                yield [$debtorKey, $groupEntry, $debtorProductsGrouped[$debtorKey] ?? null];
-            }
-        })->each(function ($data) {
-            [$debtorKey, $groupEntry, $mappedProductNumbers] = $data;
-
-            foreach ($groupEntry as $productKey => $entry) {
-                if (is_null($mappedProductNumbers) || !in_array($productKey, $mappedProductNumbers)) {
-                    $entryId = collect($entry)->first()['id'];
-                    DebtorProduct::destroy($entryId);
-                }
+            if (!isset($debtorProducts[$debtorProduct["debtor_number"]]) || !in_array($debtorProduct["product_number"], array_column($debtorProducts[$debtorProduct["debtor_number"]], "product_number"))) {
+                $entry->delete();
             }
         });
     }

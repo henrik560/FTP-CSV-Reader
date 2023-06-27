@@ -3,56 +3,63 @@
 namespace App\Services;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\LazyCollection;
+use Illuminate\Support\Facades\Log;
 
 class CsvService
 {
-    public function retrieveCSVData(string $csvPath, array $columns = null)
-    {
-        [$data, $columns] = $this->aggregateCSVData($csvPath, $columns);
 
-        $csvData = LazyCollection::make(function () use ($data, $columns) {
-            yield from collect($data)->map(function ($dataRow) use ($columns) {
-                return array_combine($columns, $dataRow);
-            });
-        })->toArray();
-
-        return $csvData;
-    }
-
-    public function aggregateCSVData(string $csvPath, array $columnNames = null): array
+    public function retrieveCSVData(string $csvPath, array $columnNames = null, array|string $groupBy = null): array
     {
         abort_if(!file_exists(base_path($csvPath)), 404);
 
         $file = fopen(base_path($csvPath), 'r');
 
         if (is_null($columnNames)) {
-            $columnNames = collect(fgetcsv($file, 0, ';'))->map(function ($column) {
-                return str_replace(',', '', $column);
-            })->toArray();
+            $columnNames = $this->retrieveColumnNames($file);
         }
 
-        $aggregatedData = new Collection();
+        $aggregatedData = $this->processCSVData($file, $columnNames);
+        fclose($file);
+
+        if (!is_null($groupBy)) {
+            $aggregatedData = $this->groupByData($aggregatedData, $groupBy);
+        }
+
+        return $aggregatedData;
+    }
+
+    private function retrieveColumnNames($file): array
+    {
+        $headerRow = fgetcsv($file, 0, ';');
+        return collect($headerRow)->map(function ($column) {
+            return str_replace(',', '', $column);
+        })->toArray();
+    }
+
+    private function processCSVData($file, $columnNames): array
+    {
+        $aggregatedData = [];
+        $i = 0;
 
         while (($row = fgetcsv($file, 0)) !== false) {
             $row = explode(';', implode('', str_replace('"', '', $row)));
             $encoded = mb_convert_encoding(implode(';', $row), 'UTF-8', 'ISO-8859-1');
             $convertedRow = collect(explode(';', $encoded))->map(function ($item) {
-                $convertedItem = trim($item);
-
-                return $convertedItem;
+                return trim($item);
             })->toArray();
 
             if (count($convertedRow) == count($columnNames)) {
-                $aggregatedData->push($convertedRow);
+                $aggregatedData[] = array_combine($columnNames, $convertedRow);
             }
         }
 
-        fclose($file);
+        return $aggregatedData;
+    }
 
-        return [
-            $aggregatedData->toArray(),
-            $columnNames,
-        ];
+    private function groupByData($data, $groupBy): array
+    {
+        $groupByColumns = is_array($groupBy) ? $groupBy : [$groupBy];
+
+        return collect($data)->groupBy($groupByColumns)->toArray();
     }
 }

@@ -18,7 +18,7 @@ class PasswordCreatedNotification extends Notification
      */
     public function __construct()
     {
-        //
+        // TODO if the user does not have a password, notify the user that its password has been created an create a random password for the user
     }
 
     /**
@@ -41,9 +41,9 @@ class PasswordCreatedNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**

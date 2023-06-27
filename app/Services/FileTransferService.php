@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class FileTransferService
@@ -23,7 +24,8 @@ class FileTransferService
 
     private function downloadFile(string $fileName): void
     {
-        if (! Storage::disk('sftp')->exists($fileName)) {
+        if (!Storage::disk('sftp')->exists($fileName)) {
+            Log::emergency("file does not exists in sftp disk", ["file" => $fileName]);
             return;
         }
 
