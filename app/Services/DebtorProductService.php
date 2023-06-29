@@ -29,7 +29,7 @@ class DebtorProductService
 
     private function retrieveDebtorProducts(): array
     {
-        return $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale'], ['debtor_number']);
+        return $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/debiteur_artikel.csv', ['debtor_number', 'product_number', 'sale'], ['debtor_number']);
     }
 
     private function createNewEntries(array $debtorProducts): void
@@ -50,11 +50,12 @@ class DebtorProductService
     {
         return DebtorProduct::lazy()->filter(function ($debtorProduct) use ($debtorProducts) {
             if (isset($debtorProducts[$debtorProduct['debtor_number']])) {
-                Log::emergency("array_col debtor product servicew", [array_column($debtorProducts[$debtorProduct['debtor_number']], 'product_number'), "key" => $debtorProduct["debtor_number"], "product" => $debtorProducts[$debtorProduct['debtor_number']]]);
+                Log::emergency('array_col debtor product servicew', [array_column($debtorProducts[$debtorProduct['debtor_number']], 'product_number'), 'key' => $debtorProduct['debtor_number'], 'product' => $debtorProducts[$debtorProduct['debtor_number']]]);
             }
-            return !isset($debtorProducts[$debtorProduct['debtor_number']]) || !in_array($debtorProduct['product_number'], array_column($debtorProducts[$debtorProduct['debtor_number']], 'product_number'));
+
+            return ! isset($debtorProducts[$debtorProduct['debtor_number']]) || ! in_array($debtorProduct['product_number'], array_column($debtorProducts[$debtorProduct['debtor_number']], 'product_number'));
         })->map(function ($debtorProduct) {
-            return $debtorProduct["id"];
+            return $debtorProduct['id'];
         })->toArray();
     }
 }

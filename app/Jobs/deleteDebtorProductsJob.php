@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\DebtorProduct;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,6 +14,7 @@ class deleteDebtorProductsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $debtorProductIds;
+
     /**
      * Create a new job instance.
      *
@@ -27,8 +27,6 @@ class deleteDebtorProductsJob implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {

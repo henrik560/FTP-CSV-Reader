@@ -28,7 +28,7 @@ class ProductService
 
     private function retrieveProducts(): array
     {
-        return $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/artikelen.csv');
+        return $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/artikelen.csv');
     }
 
     public function createNewEntries(array $products): void
@@ -48,9 +48,9 @@ class ProductService
     private function getUnusedEntryIds(array $products): array
     {
         return Product::lazy()->filter(function ($product) use ($products) {
-            return !in_array($product['product_number'], array_column($products, 'Artikelnummer'));
+            return ! in_array($product['product_number'], array_column($products, 'Artikelnummer'));
         })->map(function ($product) {
-            return $product["id"];
+            return $product['id'];
         })->toArray();
     }
 }
