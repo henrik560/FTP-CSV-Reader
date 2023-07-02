@@ -14,8 +14,7 @@ class Authenticate extends Middleware
      */
     protected function redirectTo($request)
     {
-        if (! $request->expectsJson()) {
-            // TODO check if user has password - if not then generate password otherwise check if request credentials are valid
+        if (!$request->expectsJson()) {
             return route('login');
         }
     }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\DebtorController;
 use App\Http\Controllers\ProductsController;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware('api.key.validation')->group(function () {
     Route::get('/products', [ProductsController::class, 'index']);
 
     Route::prefix('/debtors')->group(function () {
@@ -26,6 +27,11 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// TODO move to routes/auth.php
+Route::post('/authenticate', [AuthenticationController::class, 'index']);
+
+// TODO add routing for authenication in routes/auth.php
+// TODO - register
+// TODO - forgot password
+// TODO - authenticate
+// TODO - delete account

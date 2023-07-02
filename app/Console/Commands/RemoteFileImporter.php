@@ -31,8 +31,6 @@ class RemoteFileImporter extends Command
      */
     public function handle(FileTransferService $fileTransferService, DebtorProductService $debtorProductService, DebtorService $debtorService, ProductService $productService)
     {
-        ini_set('memory_limit', '256M');
-
         $fileTransferService->transferFiles();
 
         $this->processData($debtorService, $debtorProductService, $productService);
