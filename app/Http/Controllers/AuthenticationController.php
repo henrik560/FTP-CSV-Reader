@@ -13,13 +13,13 @@ class AuthenticationController extends Controller
     {
         $validated = $request->validated();
 
-        if (!$user = Debtor::where('email', $request->get('user')->first())) {
+        if (! $user = Debtor::where('email', $request->get('user')->first())) {
             $this->throwUnAuthenticatedError();
         }
 
         // TODO Check if debtor has password
-        if (!isset($user["password"])) {
-            // TODO notify user of new password 
+        if (! isset($user['password'])) {
+            // TODO notify user of new password
         }
 
         //TODO check if passwords are equal
@@ -27,6 +27,6 @@ class AuthenticationController extends Controller
 
     private function throwUnAuthenticatedError(): HttpResponseException
     {
-        return new HttpResponseException(response()->json(["error" => "Invalid username or password!"], Response::HTTP_BAD_REQUEST));
+        return new HttpResponseException(response()->json(['error' => 'Invalid username or password!'], Response::HTTP_BAD_REQUEST));
     }
 }

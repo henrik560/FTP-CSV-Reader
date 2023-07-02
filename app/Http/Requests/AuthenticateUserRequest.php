@@ -25,7 +25,7 @@ class AuthenticateUserRequest extends FormRequest
     {
         return [
             'user' => 'required',
-            'password' => 'required'
+            'password' => 'required',
         ];
     }
 }

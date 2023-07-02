@@ -28,7 +28,7 @@ class DebtorService
 
     private function retrieveDebtors(): array
     {
-        return $this->csvService->retrieveCSVData('storage/app' . env('SFTP_LOCAL_PATH', '/csv') . '/debiteuren.csv');
+        return $this->csvService->retrieveCSVData('storage/app'.env('SFTP_LOCAL_PATH', '/csv').'/debiteuren.csv');
     }
 
     private function createNewEntries(array $debtors): void
@@ -48,7 +48,7 @@ class DebtorService
     private function getUnusedEntryIds(array $debtors): array
     {
         return Debtor::lazy()->filter(function ($debtor) use ($debtors) {
-            return !in_array($debtor['debtor_number'], array_column($debtors, 'Debiteurnummer'));
+            return ! in_array($debtor['debtor_number'], array_column($debtors, 'Debiteurnummer'));
         })->map(function ($debtor) {
             return $debtor['id'];
         })->toArray();

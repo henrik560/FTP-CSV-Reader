@@ -3,9 +3,9 @@
 namespace App\Http\Middleware;
 
 use App\Models\User;
-use Illuminate\Http\Request;
 use Closure;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 
@@ -14,7 +14,6 @@ class ApiKeyAuthMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  Request  $request
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
@@ -22,15 +21,15 @@ class ApiKeyAuthMiddleware
     {
         $this->validateRequest($request);
 
-        if (!$user = $this->getUser($request->get("user"))) {
+        if (! $user = $this->getUser($request->get('user'))) {
             throw new HttpResponseException(response()->json([
-                'error' => 'User does not exists'
+                'error' => 'User does not exists',
             ], Response::HTTP_BAD_REQUEST));
         }
 
-        if (!$this->validateApiKey($user, $request->get('api-key'))) {
+        if (! $this->validateApiKey($user, $request->get('api-key'))) {
             throw new HttpResponseException(response()->json([
-                'error' => 'Api key is invalid!'
+                'error' => 'Api key is invalid!',
             ], Response::HTTP_BAD_REQUEST));
         }
 
@@ -39,7 +38,7 @@ class ApiKeyAuthMiddleware
 
     private function validateApiKey(User $user, string $apiKey): bool
     {
-        return $user["secret_key"] == $apiKey;
+        return $user['secret_key'] == $apiKey;
     }
 
     private function getUser(string $user): ?User
@@ -52,12 +51,12 @@ class ApiKeyAuthMiddleware
         try {
             $validated = $request->validate([
                 'user' => 'required',
-                'api-key' => 'required'
+                'api-key' => 'required',
             ]);
         } catch (ValidationException $exception) {
             throw new HttpResponseException(response()->json([
                 'error' => $exception->getMessage(),
-                'errors' => $exception->errors()
+                'errors' => $exception->errors(),
             ], Response::HTTP_BAD_REQUEST));
         }
     }
