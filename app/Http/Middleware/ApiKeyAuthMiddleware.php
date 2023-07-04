@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
+use App\Models\Debtor;
 use Closure;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
@@ -21,13 +21,13 @@ class ApiKeyAuthMiddleware
     {
         $this->validateRequest($request);
 
-        if (! $user = $this->getUser($request->get('user'))) {
+        if (!$user = $this->getUser($request->get('user'))) {
             throw new HttpResponseException(response()->json([
                 'error' => 'User does not exists',
             ], Response::HTTP_BAD_REQUEST));
         }
 
-        if (! $this->validateApiKey($user, $request->get('api-key'))) {
+        if (!$this->validateApiKey($user, $request->get('api-key'))) {
             throw new HttpResponseException(response()->json([
                 'error' => 'Api key is invalid!',
             ], Response::HTTP_BAD_REQUEST));
@@ -36,14 +36,14 @@ class ApiKeyAuthMiddleware
         return $next($request);
     }
 
-    private function validateApiKey(User $user, string $apiKey): bool
+    private function validateApiKey(Debtor $debtor, string $apiKey): bool
     {
-        return $user['secret_key'] == $apiKey;
+        return $debtor['secret_key'] == $apiKey;
     }
 
-    private function getUser(string $user): ?User
+    private function getUser(string $debtor): ?Debtor
     {
-        return User::where('email', $user)->first();
+        return Debtor::where('email', $debtor)->first();
     }
 
     private function validateRequest(Request $request)

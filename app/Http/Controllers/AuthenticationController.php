@@ -2,31 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AuthenticateUserRequest;
-use App\Models\Debtor;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\Response;
+use App\Http\Requests\AuthenticateDebtorRequest;
+use App\Services\AuthenticationService;
 
 class AuthenticationController extends Controller
 {
-    public function index(AuthenticateUserRequest $request)
+    public function authenticate(AuthenticateDebtorRequest $request, AuthenticationService $authenticationService)
     {
         $validated = $request->validated();
 
-        if (! $user = Debtor::where('email', $request->get('user')->first())) {
-            $this->throwUnAuthenticatedError();
-        }
-
-        // TODO Check if debtor has password
-        if (! isset($user['password'])) {
-            // TODO notify user of new password
-        }
-
-        //TODO check if passwords are equal
+        return $authenticationService->authenticate($request);
     }
 
-    private function throwUnAuthenticatedError(): HttpResponseException
+    public function resetPassword()
     {
-        return new HttpResponseException(response()->json(['error' => 'Invalid username or password!'], Response::HTTP_BAD_REQUEST));
+    }
+
+    public function requestResetPassword(Request $request)
+    {
+        // TODO Validate request with valid email 
+        // generate a 24 hour reset key
     }
 }

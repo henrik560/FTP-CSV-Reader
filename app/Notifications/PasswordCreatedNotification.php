@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\Debtor;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -10,14 +11,17 @@ class PasswordCreatedNotification extends Notification
 {
     use Queueable;
 
+    private $password;
+    private $debtor;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(string $password, Debtor $debtor)
     {
-        // TODO if the user does not have a password, notify the user that its password has been created an create a random password for the user
+        $this->password = $password;
+        $this->debtor = $debtor;
     }
 
     /**
@@ -40,9 +44,11 @@ class PasswordCreatedNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->salutation('Dag ' . $this->debtor->name)
+            ->line('Er is een nieuw wachtwoord voor u aangemaakt:')
+            ->line("Wachtwoord: $this->password")
+            ->line("Deel dit wachtwoord met niemand anders!")
+            ->action('Direct inloggen', env('EXTERNAL_SITE_LOGIN_URL', url('/')));
     }
 
     /**

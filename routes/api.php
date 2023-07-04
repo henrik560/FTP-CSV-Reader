@@ -19,18 +19,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('api.key.validation')->group(function () {
     Route::get('/products', [ProductsController::class, 'index']);
 
+    // TODO refactor to route resource
     Route::prefix('/debtors')->group(function () {
         Route::get('/', [DebtorController::class, 'index']);
         Route::get('/{debtorId}', [DebtorController::class, 'show']);
         Route::get('/{debtor}/products', [DebtorController::class, 'products']);
     });
 });
-
-// TODO move to routes/auth.php
-Route::post('/authenticate', [AuthenticationController::class, 'index']);
-
-// TODO add routing for authenication in routes/auth.php
-// TODO - register
-// TODO - forgot password
-// TODO - authenticate
-// TODO - delete account
