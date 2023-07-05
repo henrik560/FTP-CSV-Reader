@@ -26,5 +26,6 @@ class Debtor extends Model
         'email_invoice',
         'email_invoice_cc',
         'tax_number',
+        'password'
     ];
 }

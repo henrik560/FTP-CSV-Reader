@@ -5,21 +5,18 @@ namespace App\Services;
 use App\Jobs\deleteDebtorsJob;
 use App\Jobs\updateOrCreateDebtorsJob;
 use App\Models\Debtor;
-use App\Notifications\PasswordCreatedNotification;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\LazyCollection;
-use Illuminate\Support\Facades\Notification;
 
 class DebtorService
 {
     private $csvService;
-    private $passwordService;
 
-    public function __construct(CsvService $csvService, PasswordService $passwordService)
+    public function __construct(CsvService $csvService)
     {
         $this->csvService = $csvService;
-        $this->passwordService = $passwordService;
     }
 
     public function processDebtors(): void
@@ -59,20 +56,9 @@ class DebtorService
         })->toArray();
     }
 
-    /** @param App\http\controller\authenticationController used in --> */
-    public function generatePassword(Debtor $debtor): void
+    public function updatePassword(string $password, Debtor $debtor): void
     {
-        $password = $this->passwordService->generate();
-
-        $debtor->fill(['password' => Hash::make($password)]);
-
-        $this->notifyPasswordCreation($password, $debtor);
-    }
-
-    private function notifyPasswordCreation(string $password, Debtor $debtor): void
-    {
-        if (isset($debtor->email) && !is_null($debtor->email)) {
-            Notification::send($debtor->email, new PasswordCreatedNotification($password, $debtor));
-        }
+        $debtor->fill(["password" => Hash::make($password)])->save();
+        Log::emergency("password: " . Hash::make($password), [$debtor]);
     }
 }

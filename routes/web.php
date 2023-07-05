@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\AuthenticationController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/reset-password', [AuthenticationController::class, 'resetPassword']);
+Route::get('/token', [AuthenticationController::class, 'token']);
+
+
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+// TODO import auth.php
+// require_once('/auth.php');
