@@ -22,15 +22,15 @@ class ApiKeyAuthMiddleware
         $this->validateRequest($request);
 
         if (!$user = $this->getUser($request->get('user'))) {
-            throw new HttpResponseException(response()->json([
+            return response()->json([
                 'error' => 'User does not exists',
-            ], Response::HTTP_BAD_REQUEST));
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         if (!$this->validateApiKey($user, $request->get('api-key'))) {
-            throw new HttpResponseException(response()->json([
+            return response()->json([
                 'error' => 'Api key is invalid!',
-            ], Response::HTTP_BAD_REQUEST));
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         return $next($request);
@@ -54,10 +54,10 @@ class ApiKeyAuthMiddleware
                 'api-key' => 'required',
             ]);
         } catch (ValidationException $exception) {
-            throw new HttpResponseException(response()->json([
+            return response()->json([
                 'error' => $exception->getMessage(),
                 'errors' => $exception->errors(),
-            ], Response::HTTP_BAD_REQUEST));
+            ], Response::HTTP_BAD_REQUEST);
         }
     }
 }

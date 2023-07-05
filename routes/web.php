@@ -21,6 +21,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
-// TODO import auth.php
-// require_once('/auth.php');
+require __DIR__ . '/auth.php';

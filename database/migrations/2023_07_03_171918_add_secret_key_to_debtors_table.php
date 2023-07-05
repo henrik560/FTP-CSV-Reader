@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('debtors', function (Blueprint $table) {
-            $table->string('secret_key');
+            $table->string('secret_key')->nullable();
         });
     }
 

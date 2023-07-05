@@ -59,6 +59,5 @@ class DebtorService
     public function updatePassword(string $password, Debtor $debtor): void
     {
         $debtor->fill(["password" => Hash::make($password)])->save();
-        Log::emergency("password: " . Hash::make($password), [$debtor]);
     }
 }
