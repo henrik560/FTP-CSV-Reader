@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Debtor;
+use App\Models\OneTimePassword;
 use App\Models\PasswordReset;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
@@ -12,29 +13,9 @@ use Illuminate\Support\Str;
 
 class PasswordService
 {
-    public function generateRandomPassword(Debtor $debtor): void
+    public function generateToken(Debtor $debtor): string
     {
-        $password = Str::random(12);
-
-        $debtor->fill(['password' => Hash::make($password)])->save();
-
-        $this->notifyPasswordCreation($password, $debtor);
-    }
-
-    private function notifyPasswordCreation(string $password, Debtor $debtor): void
-    {
-        if (isset($debtor->email) && !is_null($debtor->email)) {
-            Notification::send($debtor->email, new PasswordCreatedNotification($password, $debtor));
-        }
-    }
-
-    public function generateToken($email): string
-    {
-        if (!$debtor = Debtor::whereEmail($email)->first()) {
-            return null;
-        }
-
-        $token =  rtrim(strtr(base64_encode(random_bytes(64)), '+/', '-_'), '=');
+        $token = rtrim(strtr(base64_encode(random_bytes(64)), '+/', '-_'), '=');;
 
         $this->linkTokenToDebtor($debtor, $token);
 
@@ -52,6 +33,19 @@ class PasswordService
                 "token" => $token
             ]
         );
+    }
+
+    public function notifyPasswordResetLink(string $password, Debtor $debtor): void
+    {
+        if (isset($debtor->email) && !is_null($debtor->email)) {
+            // TODO notify with password reset link
+            // Notification::send($debtor->email, new PasswordCreatedNotification($password, $debtor));
+        }
+    }
+
+    public function notifyPasswordResetted(Debtor $debtor): void
+    {
+        // TODO notify the user that their password has been changed
     }
 
     public function verifyTokenExpiry(string $token)

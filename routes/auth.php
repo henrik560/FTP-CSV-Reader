@@ -3,15 +3,18 @@
 use App\Http\Controllers\AuthenticationController;
 use Illuminate\Support\Facades\Route;
 
-// ["user", "password"] => returns $token
+// ['user', 'password'] => returns $token
 Route::post('/authenticate', [AuthenticationController::class, 'authenticate']);
 
-// ["password", "token"] => returns $status
+// ['email'] => returns $token
+Route::get('/request-reset-password', [AuthenticationController::class, 'requestResetPassword']);
+
+// ['password'] => returns $status
 Route::post('/reset-password/{token}', [AuthenticationController::class, 'resetPassword']);
 
-// ["email"] => returns $token
-Route::post('/request-reset', [AuthenticationController::class, 'requestResetPassword']);
-
+// ['debtor_number', 'name_1', 'name_2', 'search_name', 'address', 'postalcode', 'city', 'country', 'contact', 'phonenumber', 'mobile', 'email', 'email_cc', 'email_invoice', 'email_invoice_cc', 'tax_number', 'password']
 Route::post('register', [AuthenticationController::class, 'register']);
 
-// TODO - delete account
+// TODO - delete
+// TODO - login (authenticate)
+// TODO - reset 

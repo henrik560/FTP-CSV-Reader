@@ -29,9 +29,13 @@ class AuthenticationController extends Controller
             'email' => 'required'
         ]);
 
-        $token = $passwordService->generateToken($request->get('email'));
+        if (!$debtor = Debtor::whereEmail($request->get('email'))->first()) {
+            return response()->json(["error" => "This debtor does not exists"], Response::HTTP_BAD_REQUEST);
+        }
 
-        return response()->json($token);
+        $token = $passwordService->generateToken($debtor);
+
+        return response()->json(["message" => "Succesfully requested a one time password"]);
     }
 
     public function resetPassword(Request $request, string $token, PasswordService $passwordService, DebtorService $debtorService)
@@ -58,5 +62,7 @@ class AuthenticationController extends Controller
         }
 
         Debtor::create([$request->toArray()]);
+
+        return response()->json(["message" => "Succesfully created debtor"], Response::HTTP_ACCEPTED);
     }
 }
