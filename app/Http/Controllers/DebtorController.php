@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Debtor;
 use App\Models\DebtorProduct;
+use App\Services\DebtorService;
 use App\Services\PaginationService;
+use App\Services\ValidateRequestService;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class DebtorController extends Controller
 {
@@ -32,6 +36,20 @@ class DebtorController extends Controller
     public function show(string $debtorId)
     {
         return Debtor::where('debtor_number', '=', $debtorId)->firstOrFail();
+    }
+
+    public function delete(Request $request, string $id, DebtorService $debtorService, ValidateRequestService $validateRequestService)
+    {
+        $validateRequestService->validateRequest(
+            array_merge(["id" => $id], ["password" => $request->get('password')]),
+            ['id' => 'required', 'password' => 'required']
+        );
+
+        if (!$debtorService->deleteDebtorByIdAndPassword($id, $request->get('password'))) {
+            return response()->json(["error" => "Invalid credentials/request"], Response::HTTP_BAD_REQUEST);
+        }
+
+        return response()->json(["message" => "Debtor succesfully deleted"], Response::HTTP_ACCEPTED);
     }
 
     public function products(PaginationService $paginationService, Request $request, string $debtorNumber)

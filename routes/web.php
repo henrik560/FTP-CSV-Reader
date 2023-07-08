@@ -13,10 +13,6 @@ use App\Http\Controllers\AuthenticationController;
 |
 */
 
-Route::get('/reset-password', [AuthenticationController::class, 'resetPassword']);
-Route::get('/token', [AuthenticationController::class, 'token']);
-
-
 Route::get('/', function () {
     return view('welcome');
 });
