@@ -17,7 +17,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('api.key.validation')->group(function () {
+    // TODO add dummy image
     Route::get('/products', [ProductsController::class, 'index']);
+    // TODO create a route to update a product
+    // TODO images by group product.group -> 
 
     // TODO refactor to route resource
     Route::prefix('/debtors')->group(function () {

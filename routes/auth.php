@@ -4,7 +4,13 @@ use App\Http\Controllers\AuthenticationController;
 use Illuminate\Support\Facades\Route;
 
 // ['user', 'password'] => returns $token
-Route::post('/authenticate', [AuthenticationController::class, 'authenticate']);
+// TODO als er geen wachtwoord is maar wel een debtor_number dan terug sturen om aan te maken
+Route::get('/authenticate', [AuthenticationController::class, 'authenticate']);
+
+// TODO route aanmaken voor wachtwoord instellen
+
+//TODO je ziet als eerst groep en daarin producten
+// TODO opties voor voorraad bijhouden -> default uit
 
 // ['email'] => returns $token
 Route::get('/request-reset-password', [AuthenticationController::class, 'requestResetPassword']);
@@ -16,5 +22,4 @@ Route::post('/reset-password/{token}', [AuthenticationController::class, 'resetP
 Route::post('register', [AuthenticationController::class, 'register']);
 
 // TODO - delete
-// TODO - login (authenticate)
-// TODO - reset 
+// TODO account update

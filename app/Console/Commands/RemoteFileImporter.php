@@ -42,8 +42,12 @@ class RemoteFileImporter extends Command
     {
         $debtorService->processDebtors();
 
+        $debtorService->processDebtorNettos();
+
         $debtorProductService->processDebtorProducts();
 
         $productService->processProducts();
+
+        $productService->processProductSorts();
     }
 }

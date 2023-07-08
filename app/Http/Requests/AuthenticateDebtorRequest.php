@@ -25,7 +25,7 @@ class AuthenticateDebtorRequest extends FormRequest
     {
         return [
             'user' => 'required',
-            'password' => 'required',
+            'password' => 'optional',
         ];
     }
 }
