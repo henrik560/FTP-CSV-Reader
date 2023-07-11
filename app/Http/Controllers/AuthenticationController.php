@@ -35,6 +35,8 @@ class AuthenticationController extends Controller
 
         $token = $passwordService->generateToken($debtor);
 
+        $passwordService->notifyPasswordResetLink($token, $debtor);
+
         return response()->json(["message" => "Succesfully requested a one time password"]);
     }
 

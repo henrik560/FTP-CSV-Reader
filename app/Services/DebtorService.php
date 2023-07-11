@@ -97,4 +97,17 @@ class DebtorService
     {
         $debtor->fill(["password" => Hash::make($password)])->save();
     }
+
+    public function deleteDebtorByIdAndPassword(string $id, string $password): ?Debtor
+    {
+        if ($debtor = Debtor::find($id)) {
+            return null;
+        }
+
+        if (!Hash::check($password, $debtor->password)) {
+            return null;
+        }
+
+        return $debtor->delete();
+    }
 }

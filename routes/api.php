@@ -29,3 +29,5 @@ Route::middleware('api.key.validation')->group(function () {
         Route::get('/{debtor}/products', [DebtorController::class, 'products']);
     });
 });
+
+Route::get('/debtor/{id}/delete', [DebtorController::class, 'delete']);

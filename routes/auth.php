@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\DebtorController;
 use Illuminate\Support\Facades\Route;
 
 // ['user', 'password'] => returns $token

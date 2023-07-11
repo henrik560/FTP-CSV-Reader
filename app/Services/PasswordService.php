@@ -35,11 +35,11 @@ class PasswordService
         );
     }
 
-    public function notifyPasswordResetLink(string $password, Debtor $debtor): void
+    public function notifyPasswordResetLink(string $token, Debtor $debtor): void
     {
         if (isset($debtor->email) && !is_null($debtor->email)) {
             // TODO notify with password reset link
-            // Notification::send($debtor->email, new PasswordCreatedNotification($password, $debtor));
+            Notification::send($debtor->email, new PasswordCreatedNotification($token, $debtor));
         }
     }
 
