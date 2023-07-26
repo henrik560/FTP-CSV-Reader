@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductSort;
 use App\Services\PaginationService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -13,16 +14,16 @@ class ProductsController extends Controller
     {
         $pageSize = $paginationService->validatePageSize($request->input('pageSize'));
 
-        $query = Product::query();
+        $query = ProductSort::with(["groupImageRelationship", "products"]);
 
-        if ($q = $request->input('q')) {
-            $query->where('search_name', 'LIKE', "%{$q}%")
-                ->orWhere('product_number', 'LIKE', "%{$q}%")
-                ->orWhere('group', 'LIKE', "%{$q}%")
-                ->orWhere('oms_1', 'LIKE', "%{$q}%")
-                ->orWhere('oms_2', 'LIKE', "%{$q}%")
-                ->orWhere('oms_3', 'LIKE', "%{$q}%");
-        }
+        return $query->paginate($pageSize);
+    }
+
+    public function show(PaginationService $paginationService, Request $request, string $group): LengthAwarePaginator
+    {
+        $pageSize = $paginationService->validatePageSize($request->input('pageSize'));
+
+        $query = ProductSort::with(["groupImageRelationship", "products"])->where('group', $group);
 
         return $query->paginate($pageSize);
     }

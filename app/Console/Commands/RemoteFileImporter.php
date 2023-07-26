@@ -33,7 +33,7 @@ class RemoteFileImporter extends Command
     {
         $fileTransferService->transferFiles();
 
-        $this->processData($debtorService, $debtorProductService, $productService);
+        // $this->processData($debtorService, $debtorProductService, $productService);
 
         return Command::SUCCESS;
     }
