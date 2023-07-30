@@ -21,6 +21,12 @@ class ApiKeyAuthMiddleware
     {
         $this->validateRequest($request);
 
+        if (!$request->get("user")) {
+            return response()->json([
+                'error' => 'Please provide a user and a valid api key!',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
         if (!$user = $this->getUser($request->get('user'))) {
             return response()->json([
                 'error' => 'User does not exists',

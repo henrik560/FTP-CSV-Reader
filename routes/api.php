@@ -17,17 +17,19 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('api.key.validation')->group(function () {
-    Route::get('/products/groups', [ProductsController::class, 'index']);
-    Route::get('/products/group/{group}', [ProductsController::class, 'show']);
-    // TODO create a route to update a product
-    // TODO images by group product.group -> 
+    Route::prefix("/products")->group(function () {
+        Route::prefix('/groups')->group(function () {
+            Route::get('/', [ProductsController::class, 'index']);
+            Route::get('/{group}', [ProductsController::class, 'show']);
+        });
+    });
 
-    // TODO refactor to route resource
     Route::prefix('/debtors')->group(function () {
         Route::get('/', [DebtorController::class, 'index']);
-        Route::get('/{debtorId}', [DebtorController::class, 'show']);
-        Route::get('/{debtor}/products', [DebtorController::class, 'products']);
+        Route::prefix('/{debtorId}')->group(function () {
+            Route::get('/', [DebtorController::class, 'show']);
+            Route::get('/products', [DebtorController::class, 'products']);
+            Route::get('/delete', [DebtorController::class, 'delete']);
+        });
     });
 });
-
-Route::get('/debtor/{id}/delete', [DebtorController::class, 'delete']);

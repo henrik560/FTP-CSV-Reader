@@ -5,9 +5,9 @@ use App\Http\Controllers\DebtorController;
 use Illuminate\Support\Facades\Route;
 
 // ['user', 'password'] => returns $token
-// TODO als er geen wachtwoord is maar wel een debtor_number dan terug sturen om aan te maken
 Route::get('/authenticate', [AuthenticationController::class, 'authenticate']);
 
+Route::post('/account/update', [DebtorController::class, 'update']);
 // TODO route aanmaken voor wachtwoord instellen
 
 //TODO je ziet als eerst groep en daarin producten

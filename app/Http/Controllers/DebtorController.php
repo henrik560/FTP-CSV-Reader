@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateDebtorRequest;
 use App\Models\Debtor;
 use App\Models\DebtorProduct;
 use App\Services\DebtorService;
@@ -38,27 +39,42 @@ class DebtorController extends Controller
         return Debtor::where('debtor_number', '=', $debtorId)->firstOrFail();
     }
 
-    public function delete(Request $request, string $id, DebtorService $debtorService, ValidateRequestService $validateRequestService)
+    public function delete(Request $request, string $debtorId, DebtorService $debtorService, ValidateRequestService $validateRequestService)
     {
         $validateRequestService->validateRequest(
-            array_merge(["id" => $id], ["password" => $request->get('password')]),
+            array_merge(["id" => $debtorId], ["password" => $request->get('password')]),
             ['id' => 'required', 'password' => 'required']
         );
 
-        if (!$debtorService->deleteDebtorByIdAndPassword($id, $request->get('password'))) {
+        if (!$debtorService->deleteDebtorByIdAndPassword($debtorId, $request->get('password'))) {
             return response()->json(["error" => "Invalid credentials/request"], Response::HTTP_BAD_REQUEST);
         }
 
         return response()->json(["message" => "Debtor succesfully deleted"], Response::HTTP_ACCEPTED);
     }
 
-    public function products(PaginationService $paginationService, Request $request, string $debtorNumber)
+    public function update(UpdateDebtorRequest $request)
+    {
+        $validated = $request->validated();
+
+        if (!$debtor = Debtor::whereEmail($request->get('user'))) {
+            return response()->json(["error" => "The account does not exists"]);
+        }
+
+        $debtor->update([
+            "password" => $request->get("password"),
+        ])->save();
+
+        return response()->json(["message" => "Succesfully updated the users password!"]);
+    }
+
+    public function products(PaginationService $paginationService, Request $request, string $debtorId)
     {
         $pageSize = $paginationService->validatePageSize($request->input('pageSize'));
 
-        $debtor = Debtor::where('debtor_number', '=', $debtorNumber)->firstOrFail();
+        $debtor = Debtor::where('debtor_number', '=', $debtorId)->firstOrFail();
 
-        $products = DebtorProduct::with('product')->where('debtor_number', '=', $debtorNumber);
+        $products = DebtorProduct::with('product')->where('debtor_number', '=', $debtorId);
 
         if ($q = $request->input('q')) {
             $products->where('search_name', 'LIKE', "%{$q}%")

@@ -16,6 +16,10 @@ class AuthenticationService
             return response()->json(['error' => 'Invalid username or password!'], Response::HTTP_BAD_REQUEST);
         }
 
+        if ($debtor && is_null($debtor->password)) {
+            return response()->json(["error" => "The user does not have a password, please set a password!"]);
+        }
+
         if (!$this->validatePassword($debtor, $request->get('password'))) {
             return response()->json(["error" => "Username or password is incorrect!",], Response::HTTP_BAD_REQUEST);
         }

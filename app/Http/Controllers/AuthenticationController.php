@@ -8,11 +8,8 @@ use App\Models\Debtor;
 use App\Services\AuthenticationService;
 use App\Services\DebtorService;
 use App\Services\PasswordService;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class AuthenticationController extends Controller
 {

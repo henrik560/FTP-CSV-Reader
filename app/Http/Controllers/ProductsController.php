@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
 use App\Models\ProductSort;
 use App\Services\PaginationService;
 use Illuminate\Http\Request;

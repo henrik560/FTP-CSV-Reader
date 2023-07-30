@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class AuthenticateDebtorRequest extends FormRequest
 {
@@ -25,7 +27,19 @@ class AuthenticateDebtorRequest extends FormRequest
     {
         return [
             'user' => 'required',
-            'password' => 'optional',
+            'password' => 'required',
         ];
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.*
+     * @return array
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'errors' => $validator->errors(),
+            'status' => true
+        ], 422));
     }
 }
