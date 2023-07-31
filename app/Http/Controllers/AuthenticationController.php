@@ -13,11 +13,11 @@ use Illuminate\Http\Response;
 
 class AuthenticationController extends Controller
 {
-    public function authenticate(AuthenticateDebtorRequest $request, AuthenticationService $authenticationService)
+    public function login(AuthenticateDebtorRequest $request, AuthenticationService $authenticationService, PasswordService $passwordService)
     {
         $validated = $request->validated();
 
-        return $authenticationService->authenticate($request);
+        return $authenticationService->authenticate($request, $passwordService);
     }
 
     public function requestResetPassword(Request $request, PasswordService $passwordService)
