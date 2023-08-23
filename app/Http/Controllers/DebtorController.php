@@ -10,6 +10,7 @@ use App\Services\PaginationService;
 use App\Services\ValidateRequestService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class DebtorController extends Controller
@@ -61,9 +62,11 @@ class DebtorController extends Controller
             return response()->json(["error" => "The account does not exists"]);
         }
 
-        $debtor->update([
-            "password" => $request->get("password"),
-        ])->save();
+        if (!Hash::check($debtor->password, $request->get('password'))) {
+            return response()->json(["error" => "Invalid account credentials"]);
+        }
+
+        $debtor->update($request->toArray())->save();
 
         return response()->json(["message" => "Succesfully updated the users password!"]);
     }

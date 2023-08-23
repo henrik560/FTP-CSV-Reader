@@ -49,6 +49,7 @@ Route::prefix('/user')->group(function () {
     Route::post('/logout', [AuthenticationController::class, 'logout']);
 
     Route::prefix('/{userId}')->group(function () {
+        Route::patch('/update', [DebtorController::class, 'update']);
         Route::post('/request-reset-password', [AuthenticationController::class, 'requestResetPassword']);
         Route::post('/reset-password/{token}', [AuthenticationController::class, 'resetPassword']);
     });
