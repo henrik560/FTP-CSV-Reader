@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\LazyCollection;
 
 class updateOrCreateDebtorProductsJob implements ShouldQueue
@@ -34,10 +35,20 @@ class updateOrCreateDebtorProductsJob implements ShouldQueue
     public function handle()
     {
         LazyCollection::make($this->debtorProducts)->each(function ($product) {
-            DebtorProduct::updateOrCreate(
-                ['debtor_number' => $product['debtor_number'], 'product_number' => $product['product_number']],
-                $product
-            );
+            if (!isset($product['debtor_number']) || !isset($product['product_number']) || !isset($product['sale'])) {
+                return;
+            }
+
+            try {
+                DebtorProduct::updateOrCreate(
+                    ['debtor_number' => $product['debtor_number'], 'product_number' => $product['product_number']],
+                    $product
+                );
+            } catch (\Exception $e) {
+                Log::emergency('Error in debtorProductsJob', [
+                    $e->getMessage(),
+                ]);
+            }
         });
     }
 }

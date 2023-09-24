@@ -9,9 +9,14 @@ class ProductSort extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'layer',
+        'group',
+        'serial_number',
+    ];
+
     protected $appends = ['groupImage'];
 
-    // This is so you don't end up also showing the relationship
     protected $hidden = ['groupImageRelationship'];
 
     public function products()
@@ -26,13 +31,21 @@ class ProductSort extends Model
 
     public function getgroupImageAttribute()
     {
+        if (!$this->groupImageRelationship) {
+            return '';
+        }
+
         return url('/images/' . $this->groupImageRelationship->name . '.' . $this->groupImageRelationship->mime_type);
     }
 
     protected static function booted()
     {
-        static::saving(function ($myModel) {
-            $myModel->groupImageRelationship->save();
+        static::saving(function ($productSort) {
+            $image = $productSort->groupImageRelationship?->name ?? null;
+
+            if ($image !== null) {
+                $productSort->groupImageRelationship?->save();
+            }
         });
     }
 }

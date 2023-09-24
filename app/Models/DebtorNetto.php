@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class DebtorNetto extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'debtor_number',
+        'product_number',
+        'type',
+        'pbk',
+    ];
 }

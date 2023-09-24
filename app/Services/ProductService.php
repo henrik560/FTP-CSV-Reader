@@ -8,6 +8,7 @@ use App\Jobs\updateOrCreateProductsJob;
 use App\Jobs\updateOrCreateProductSortsJob;
 use App\Models\Product;
 use App\Models\ProductSort;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\LazyCollection;
 
@@ -24,6 +25,8 @@ class ProductService
     {
         $products = $this->retrieveFileContent('/artikelen.csv');
 
+        Log::emergency('Size', [count($products)]);
+
         $this->deleteUnusedProductEntries($products);
 
         $this->createNewProductEntries($products);
@@ -32,6 +35,8 @@ class ProductService
     public function processProductSorts(): void
     {
         $productSorts = $this->retrieveFileContent('/artikel_sorteer.csv');
+
+        Log::emergency('Size', [count($productSorts)]);
 
         $this->deleteUnusedProductSortEntries($productSorts);
 

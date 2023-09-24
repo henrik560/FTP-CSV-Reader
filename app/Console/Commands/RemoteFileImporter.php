@@ -15,7 +15,7 @@ class RemoteFileImporter extends Command
      *
      * @var string
      */
-    protected $signature = 'remoteFileImporter:start';
+    protected $signature = 'importer:start';
 
     /**
      * The console command description.
@@ -33,7 +33,7 @@ class RemoteFileImporter extends Command
     {
         $fileTransferService->transferFiles();
 
-        // $this->processData($debtorService, $debtorProductService, $productService);
+        $this->processData($debtorService, $debtorProductService, $productService);
 
         return Command::SUCCESS;
     }

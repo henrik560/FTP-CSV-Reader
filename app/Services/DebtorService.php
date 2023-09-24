@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Jobs\deleteDebtorNettosJob;
 use App\Jobs\deleteDebtorsJob;
+use App\Jobs\updateOrCreateDebtorNettosJob;
 use App\Jobs\updateOrCreateDebtorsJob;
 use App\Models\Debtor;
 use App\Models\DebtorNetto;
@@ -47,7 +48,7 @@ class DebtorService
     private function createNewDebtorNettoEntries(array $debtorNettos): void
     {
         LazyCollection::make($debtorNettos)->chunk(env('CHUNK_SIZE', 1000))->each(function ($debtorNettosChunk) {
-            Queue::push(new updateOrCreateDebtorsJob($debtorNettosChunk->toArray()));
+            Queue::push(new updateOrCreateDebtorNettosJob($debtorNettosChunk->toArray()));
         });
     }
 

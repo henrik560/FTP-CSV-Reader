@@ -16,23 +16,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('api.key.validation')->group(function () {
-    Route::prefix("/products")->group(function () {
-        Route::prefix('/groups')->group(function () {
-            Route::get('/', [ProductsController::class, 'index']);
-            Route::get('/{group}', [ProductsController::class, 'show']);
-        });
-    });
+// Route::middleware('api.key.validation')->group(function () {
+Route::prefix('/groups')->group(function () {
+    Route::get('/', [ProductsController::class, 'index']);
+    Route::get('/{group}', [ProductsController::class, 'show']);
+});
 
-    Route::prefix('/debtors')->group(function () {
-        Route::get('/', [DebtorController::class, 'index']);
-        Route::prefix('/{debtorId}')->group(function () {
-            Route::get('/', [DebtorController::class, 'show']);
-            Route::get('/products', [DebtorController::class, 'products']);
-            Route::get('/delete', [DebtorController::class, 'delete']);
-        });
+Route::prefix('/products')->group(function () {
+    Route::get('/', [ProductsController::class, 'showProducts']);
+    Route::get('/{product}', [ProductsController::class, 'showProduct']);
+});
+
+Route::prefix('/debtors')->group(function () {
+    Route::get('/', [DebtorController::class, 'index']);
+    Route::prefix('/{debtorId}')->group(function () {
+        Route::get('/', [DebtorController::class, 'show']);
+        //@TODO Debtor related prices
+        Route::get('/products', [DebtorController::class, 'products']);
+        Route::get('/delete', [DebtorController::class, 'delete']);
     });
 });
+// });
 
 // USER Authentication
 /**
@@ -41,10 +45,11 @@ Route::middleware('api.key.validation')->group(function () {
  * ! - POST  /user/logout (username && token) -> [ $status ]; token is removed
  * ! - POST  /user (userdata) -> [ $user_info, $token, $status ]
  * ! - PATCH /user/{id}/update (userdata) -> [ $status ]
- * ! - GET   /request-reset-password -> [ Mailable -> $reset-token ]
+ * ! - GET   /request-reset-password (?email=email) -> [ Mailable -> $reset-token ]
  * ! - POST  /reset-password/{token} -> [ $status ];
  */
-Route::prefix('/user')->group(function () {
+
+Route::prefix('/debtor')->group(function () {
     Route::post('/login', [AuthenticationController::class, 'login']);
     Route::post('/logout', [AuthenticationController::class, 'logout']);
 
@@ -54,5 +59,3 @@ Route::prefix('/user')->group(function () {
         Route::post('/reset-password/{token}', [AuthenticationController::class, 'resetPassword']);
     });
 });
-
-Route::resource('/users', DebtorController::class);

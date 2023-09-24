@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\DebtorNetto;
 use App\Models\DebtorProduct;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -9,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\LazyCollection;
 
 class updateOrCreateDebtorNettosJob implements ShouldQueue
@@ -35,10 +37,25 @@ class updateOrCreateDebtorNettosJob implements ShouldQueue
     public function handle()
     {
         LazyCollection::make($this->debtorNettos)->each(function ($debtorNetto) {
-            DebtorProduct::updateOrCreate(
-                ['debtor_number' => $debtorNetto['debtor_number'], 'product_number' => $debtorNetto['product_number'], "type" => $debtorNetto["type"], "pbk" => $debtorNetto["pbk"]],
-                $debtorNetto
-            );
+            if (
+                !isset($debtorNetto['Debiteurnummer']) ||
+                !isset($debtorNetto['Artikelnummer']) ||
+                !isset($debtorNetto["Type"]) ||
+                !isset($debtorNetto["P/B/K"])
+            ) {
+                return;
+            }
+
+            try {
+                DebtorNetto::updateOrCreate(
+                    ['debtor_number' => $debtorNetto['Debiteurnummer'], 'product_number' => $debtorNetto['Artikelnummer'], "type" => $debtorNetto["Type"], "pbk" => $debtorNetto["P/B/K"]],
+                    $debtorNetto
+                );
+            } catch (\Exception $e) {
+                Log::emergency('Error in debtorNettosJob', [
+                    $e->getMessage(),
+                ]);
+            }
         });
     }
 }

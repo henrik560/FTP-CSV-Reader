@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\LazyCollection;
 
 class updateOrCreateProductSortsJob implements ShouldQueue
@@ -34,12 +35,21 @@ class updateOrCreateProductSortsJob implements ShouldQueue
      */
     public function handle()
     {
-        //TODO bij alle jobs ff checken of de value wel in het nederlands is
         LazyCollection::make($this->productSorts)->each(function ($productSort) {
-            ProductSort::updateOrCreate(
-                ['layer' => $productSort['Laag'], 'group' => $productSort["Groep"], 'serial_number' => $productSort["Volgnummer"]],
-                $this->mapProductSortData($productSort)
-            );
+            if (!isset($productSort['Laag']) || !isset($productSort['Groep']) || !isset($productSort['Volgnummer'])) {
+                return;
+            }
+
+            try {
+                ProductSort::updateOrCreate(
+                    ['layer' => $productSort['Laag'], 'group' => $productSort["Groep"], 'serial_number' => $productSort["Volgnummer"]],
+                    $this->mapProductSortData($productSort)
+                );
+            } catch (\Exception $e) {
+                Log::emergency('Error in ProductsSortJob', [
+                    $e->getMessage(),
+                ]);
+            }
         });
     }
 
@@ -47,7 +57,7 @@ class updateOrCreateProductSortsJob implements ShouldQueue
     {
         return [
             'layer' => $productSort["Laag"],
-            'group' => $productSort['Group'],
+            'group' => $productSort['Groep'],
             'serial_number' => $productSort['Volgnummer']
         ];
     }
